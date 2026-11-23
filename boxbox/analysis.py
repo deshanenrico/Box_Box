@@ -1,3 +1,4 @@
+import pandas as pd
 from scipy.stats import linregress
 
 
@@ -29,3 +30,26 @@ def degradation_regression(driver_df, compound):
         "r_squared": fit.rvalue ** 2,
         "intercept": fit.intercept
     }
+
+
+def compare_driver_compounds(driver_name, driver_df):
+    """
+    Compare degradation results
+    across compounds for one driver.
+    """
+
+    results = []
+
+    for compound in driver_df["compound"].unique():
+
+        result = degradation_regression(
+            driver_df,
+            compound
+        )
+
+        results.append({
+            "driver": driver_name,
+            **result
+        })
+
+    return pd.DataFrame(results)
