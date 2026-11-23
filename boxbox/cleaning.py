@@ -41,6 +41,41 @@ def prepare_lap_data(df):
 
     return clean_df
 
+def add_fuel_correction(
+    df,
+    total_laps=52,
+    initial_fuel=100
+):
+    """
+    Estimate fuel-corrected lap times.
+
+    WHY:
+    Cars become lighter throughout the race.
+    Later laps are naturally faster due to
+    reduced fuel load.
+
+    Fuel correction attempts to isolate tyre
+    performance from fuel-weight effects.
+    """
+
+    result = df.copy()
+
+    result["remaining_fuel"] = (
+        initial_fuel *
+        (1 - result["lap"] / total_laps)
+    )
+
+    result["fuel_effect"] = (
+        result["remaining_fuel"] * 0.03
+    )
+
+    result["corrected_time"] = (
+        result["time"] -
+        result["fuel_effect"]
+    )
+
+    return result
+
 
 def add_pace_loss(df):
     """
@@ -51,7 +86,7 @@ def add_pace_loss(df):
     fastest = (
         df.groupby(
             ["drv", "stint"]
-        )["time"]
+        )["corrected_time"]
         .transform("min")
     )
 
@@ -59,8 +94,8 @@ def add_pace_loss(df):
     result = df.copy()
 
     # Calculate the pace loss.
-    result["pace_loss"] = (
-        result["time"] - fastest
+    result["corrected_pace_loss"] = (
+    result["corrected_time"] - fastest
     )
 
     return result
