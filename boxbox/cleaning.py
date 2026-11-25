@@ -1,6 +1,5 @@
 import pandas as pd
 
-
 def prepare_lap_data(df):
     """
     Keep only the columns required for analysis.
@@ -119,22 +118,19 @@ def remove_pit_laps(df):
     return result
 
 
-def remove_neutralised_laps(df):
+def remove_neutralised_laps(
+    df,
+    laps_to_remove
+):
     """
-    Remove laps affected by VSC and Safety Car.
-    # - Virtual Safety Car (laps 20-22)
-    # - Virtual Safety Car (laps 36-39)
-    # - Safety Car (laps 45-52)
+    Remove laps affected by
+    Safety Car or Virtual Safety Car.
     """
-
-    neutralised_laps = [
-        20, 21, 22,
-        36, 37, 38, 39,
-        45, 46, 47, 48, 49, 50, 51, 52
-    ]
 
     result = df[
-        ~df["lap"].isin(neutralised_laps)
+        ~df["lap"].isin(
+            laps_to_remove
+        )
     ].copy()
 
     return result
